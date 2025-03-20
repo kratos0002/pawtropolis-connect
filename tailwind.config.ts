@@ -63,21 +63,34 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// City-specific colors
+				// Updated warm City-specific colors
 				amsterdam: {
-					light: '#E4F0F6',
-					DEFAULT: '#1E88E5',
-					dark: '#1565C0',
+					light: '#F8E8D8',
+					DEFAULT: '#E67E22',
+					dark: '#D35400',
 				},
 				dublin: {
 					light: '#E0F2E9',
-					DEFAULT: '#26A69A',
-					dark: '#00796B',
+					DEFAULT: '#2E8B57',
+					dark: '#1E5631',
 				},
 				calgary: {
-					light: '#F9EBE0',
-					DEFAULT: '#F57C00',
-					dark: '#E65100',
+					light: '#FFF0DB',
+					DEFAULT: '#F39C12',
+					dark: '#D68910',
+				},
+				// New warm palette colors
+				warm: {
+					50: '#FFF5EB',
+					100: '#FFEBD7',
+					200: '#FFD7AF',
+					300: '#FFC187',
+					400: '#FFAA5E',
+					500: '#FF9636',
+					600: '#F57F1B',
+					700: '#D16403',
+					800: '#A24E02',
+					900: '#7A3C02',
 				},
 			},
 			fontFamily: {
@@ -135,6 +148,12 @@ export default {
 			transitionTimingFunction: {
 				'bounce-in': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
 				'in-out-back': 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+			},
+			// Background patterns for minimalist design
+			backgroundImage: {
+				'dot-pattern': 'radial-gradient(circle, currentColor 1px, transparent 1px)',
+				'subtle-grid': 'linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px)',
+				'warm-gradient': 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)))',
 			},
 		}
 	},

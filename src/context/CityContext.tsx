@@ -20,30 +20,30 @@ export const CityProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (savedCity as City) || null;
   });
 
-  // Color mappings for each city
+  // Updated color mappings for each city with warm tones
   const colorMap = {
     amsterdam: {
-      main: '#1E88E5', // Amsterdam blue
-      light: '#E4F0F6',
-      dark: '#1565C0',
+      main: '#E67E22', // Amsterdam warm orange
+      light: '#F8E8D8',
+      dark: '#D35400',
     },
     dublin: {
-      main: '#26A69A', // Dublin green
+      main: '#2E8B57', // Dublin green with warm undertones
       light: '#E0F2E9',
-      dark: '#00796B',
+      dark: '#1E5631',
     },
     calgary: {
-      main: '#F57C00', // Calgary orange
-      light: '#F9EBE0',
-      dark: '#E65100',
+      main: '#F39C12', // Calgary golden yellow
+      light: '#FFF0DB',
+      dark: '#D68910',
     },
   };
 
-  // Default colors when no city is selected
+  // Default colors when no city is selected - warm orange
   const defaultColors = {
-    main: '#1E88E5',
-    light: '#E4F0F6',
-    dark: '#1565C0',
+    main: '#E67E22',
+    light: '#F8E8D8',
+    dark: '#D35400',
   };
 
   // Get colors based on current city
