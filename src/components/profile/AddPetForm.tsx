@@ -19,6 +19,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
 
 const petSchema = z.object({
   name: z.string().min(2, { message: "Pet name must be at least 2 characters" }),
@@ -37,6 +38,7 @@ interface AddPetFormProps {
 
 const AddPetForm: React.FC<AddPetFormProps> = ({ onAddPet, children }) => {
   const { city } = useCity();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -120,6 +122,12 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onAddPet, children }) => {
         // Additional fields could be added here if needed
       });
     }
+    
+    // Show success toast
+    toast({
+      title: "Pet Added!",
+      description: `${data.name} has been added to your profile.`,
+    });
     
     // Reset the form
     form.reset();

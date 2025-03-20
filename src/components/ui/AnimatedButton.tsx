@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Slot } from '@radix-ui/react-slot';
 
 interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -14,7 +15,7 @@ interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   asChild?: boolean;
 }
 
-const AnimatedButton: React.FC<AnimatedButtonProps> = ({
+const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonProps>(({
   children,
   variant = 'default',
   size = 'default',
@@ -24,7 +25,7 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   hoverEffect = 'scale',
   asChild = false,
   ...props
-}) => {
+}, ref) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
 
@@ -52,10 +53,13 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
     color: '#ffffff',
   } : {};
 
+  const Comp = asChild ? Slot : Button;
+
   return (
-    <Button
-      variant={variant}
-      size={size}
+    <Comp
+      ref={ref}
+      variant={asChild ? undefined : variant}
+      size={asChild ? undefined : size}
       onClick={onClick}
       className={cn(
         'relative overflow-hidden transition-all duration-300 ease-in-out-back will-change-transform',
@@ -72,13 +76,15 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
       }}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
-      asChild={asChild}
+      asChild={false}
       {...props}
     >
       <span className="relative z-10">{children}</span>
       <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-10" />
-    </Button>
+    </Comp>
   );
-};
+});
+
+AnimatedButton.displayName = 'AnimatedButton';
 
 export default AnimatedButton;
