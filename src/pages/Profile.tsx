@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import ProfileCard from '@/components/profile/ProfileCard';
 import PetProfileCard from '@/components/profile/PetProfileCard';
 import AnimatedButton from '@/components/ui/AnimatedButton';
+import AddPetForm from '@/components/profile/AddPetForm';
 import { mockUsers, mockPets } from '@/lib/mockData';
 
 const Profile = () => {
@@ -50,14 +51,19 @@ const Profile = () => {
                     Find Pet Owners
                   </AnimatedButton>
                   
-                  <AnimatedButton 
-                    variant="outline" 
-                    className="w-full justify-center"
-                    hoverEffect="scale"
-                  >
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    Add Pet Profile
-                  </AnimatedButton>
+                  <AddPetForm>
+                    <AnimatedButton 
+                      variant="outline" 
+                      className="w-full justify-center"
+                      hoverEffect="scale"
+                      asChild
+                    >
+                      <button>
+                        <PlusCircle className="w-4 h-4 mr-2" />
+                        Add Pet Profile
+                      </button>
+                    </AnimatedButton>
+                  </AddPetForm>
                 </div>
               </div>
             </div>
@@ -156,19 +162,24 @@ const Profile = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold">My Pets</h2>
-                    <AnimatedButton 
-                      className={cn(
-                        city === 'amsterdam' && 'bg-amsterdam hover:bg-amsterdam-dark',
-                        city === 'dublin' && 'bg-dublin hover:bg-dublin-dark',
-                        city === 'calgary' && 'bg-calgary hover:bg-calgary-dark',
-                        !city && 'bg-primary'
-                      )}
-                      size="sm"
-                      hoverEffect="scale"
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add Pet
-                    </AnimatedButton>
+                    <AddPetForm>
+                      <AnimatedButton 
+                        className={cn(
+                          city === 'amsterdam' && 'bg-amsterdam hover:bg-amsterdam-dark',
+                          city === 'dublin' && 'bg-dublin hover:bg-dublin-dark',
+                          city === 'calgary' && 'bg-calgary hover:bg-calgary-dark',
+                          !city && 'bg-primary'
+                        )}
+                        size="sm"
+                        hoverEffect="scale"
+                        asChild
+                      >
+                        <button>
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Pet
+                        </button>
+                      </AnimatedButton>
+                    </AddPetForm>
                   </div>
                   
                   {userPets.length > 0 ? (
@@ -197,18 +208,23 @@ const Profile = () => {
                       <p className="text-muted-foreground mb-4">
                         Add your furry, feathery, or scaly friends to your profile.
                       </p>
-                      <AnimatedButton 
-                        className={cn(
-                          city === 'amsterdam' && 'bg-amsterdam hover:bg-amsterdam-dark',
-                          city === 'dublin' && 'bg-dublin hover:bg-dublin-dark',
-                          city === 'calgary' && 'bg-calgary hover:bg-calgary-dark',
-                          !city && 'bg-primary'
-                        )}
-                        hoverEffect="lift"
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add First Pet
-                      </AnimatedButton>
+                      <AddPetForm>
+                        <AnimatedButton 
+                          className={cn(
+                            city === 'amsterdam' && 'bg-amsterdam hover:bg-amsterdam-dark',
+                            city === 'dublin' && 'bg-dublin hover:bg-dublin-dark',
+                            city === 'calgary' && 'bg-calgary hover:bg-calgary-dark',
+                            !city && 'bg-primary'
+                          )}
+                          hoverEffect="lift"
+                          asChild
+                        >
+                          <button>
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add First Pet
+                          </button>
+                        </AnimatedButton>
+                      </AddPetForm>
                     </div>
                   )}
                 </div>

@@ -11,6 +11,7 @@ interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   className?: string;
   color?: string;
   hoverEffect?: 'scale' | 'lift' | 'glow' | 'none';
+  asChild?: boolean;
 }
 
 const AnimatedButton: React.FC<AnimatedButtonProps> = ({
@@ -21,6 +22,7 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   className,
   color,
   hoverEffect = 'scale',
+  asChild = false,
   ...props
 }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -70,6 +72,7 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
       }}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
+      asChild={asChild}
       {...props}
     >
       <span className="relative z-10">{children}</span>
