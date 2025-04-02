@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { motion, useInView } from 'framer-motion';
+
+import React, { useState, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { useInView } from 'framer-motion';
 import { useCity } from '@/context/CityContext';
 import { Lightbulb, Search, CheckCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -46,7 +48,13 @@ const FeatureVoting = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('popular'); // 'popular' or 'newest'
   const [isAddingFeature, setIsAddingFeature] = useState(false);
-  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+  
+  // Fix the useInView hook to properly get ref and inView
+  const ref = useRef(null);
+  const inView = useInView(ref, { 
+    once: true,
+    amount: 0.2
+  });
 
   const handleUpvote = (id: number) => {
     const updatedFeatures = features.map(feature =>

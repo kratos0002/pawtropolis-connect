@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useCity } from '@/context/CityContext';
@@ -69,45 +70,44 @@ const FeedbackSection = () => {
     }
   };
   
-  const handleUseCaseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    const value = name.replace('useCase-', '');
+  // Fix the event handler type for radio buttons
+  const handleUseCaseChange = (value: string) => {
     setFormData(prev => ({ ...prev, useCase: value }));
   };
 
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  // In a real application, this would send data to a backend
-  console.log("Feedback submitted:", formData);
-  
-  // Show success message
-  toast({
-    title: "Thank you for your feedback!",
-    description: `We've added you to our waitlist and your feedback will help shape PawConnect in ${city || 'your city'}.`,
-    variant: "default",
-  });
-  
-  // Reset form
-  setFormData({
-    name: '',
-    email: '',
-    city: '',
-    petType: [],
-    features: '',
-    useCase: '',
-    customUseCase: '',
-    privacy: false
-  });
-  
-  // Show success animation
-  setIsSubmitted(true);
-  
-  // Hide animation after a delay
-  setTimeout(() => {
-    setIsSubmitted(false);
-  }, 5000);
-};
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // In a real application, this would send data to a backend
+    console.log("Feedback submitted:", formData);
+    
+    // Show success message
+    toast({
+      title: "Thank you for your feedback!",
+      description: `We've added you to our waitlist and your feedback will help shape PawConnect in ${city || 'your city'}.`,
+      variant: "default",
+    });
+    
+    // Reset form
+    setFormData({
+      name: '',
+      email: '',
+      city: '',
+      petType: [],
+      features: '',
+      useCase: '',
+      customUseCase: '',
+      privacy: false
+    });
+    
+    // Show success animation
+    setIsSubmitted(true);
+    
+    // Hide animation after a delay
+    setTimeout(() => {
+      setIsSubmitted(false);
+    }, 5000);
+  };
   
   return (
     <section 
@@ -219,7 +219,18 @@ const handleSubmit = (e: React.FormEvent) => {
                         id={`petType-${type}`}
                         name={`petType-${type}`}
                         checked={formData.petType.includes(type)}
-                        onChange={handleCheckboxChange}
+                        onCheckedChange={(checked) => {
+                          const value = type;
+                          setFormData(prev => {
+                            let petType = [...prev.petType];
+                            if (checked) {
+                              petType.push(value);
+                            } else {
+                              petType = petType.filter(item => item !== value);
+                            }
+                            return { ...prev, petType };
+                          });
+                        }}
                         className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                       />
                     </div>
@@ -260,13 +271,13 @@ const handleSubmit = (e: React.FormEvent) => {
                 {useCases.map(useCase => (
                   <div key={useCase} className="flex items-start">
                     <div className="flex items-center h-5">
-                      <Input
+                      <input
                         id={`useCase-${useCase}`}
-                        name={`useCase-${useCase}`}
+                        name="useCase"
                         type="radio"
                         value={useCase}
                         checked={formData.useCase === useCase}
-                        onChange={handleUseCaseChange}
+                        onChange={(e) => handleUseCaseChange(e.target.value)}
                         className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                       />
                     </div>
@@ -301,9 +312,10 @@ const handleSubmit = (e: React.FormEvent) => {
               <div className="flex items-center h-5">
                 <Checkbox
                   id="privacy"
-                  name="privacy"
                   checked={formData.privacy}
-                  onChange={handleCheckboxChange}
+                  onCheckedChange={(checked) => {
+                    setFormData(prev => ({ ...prev, privacy: checked === true }));
+                  }}
                   required
                   className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                 />
