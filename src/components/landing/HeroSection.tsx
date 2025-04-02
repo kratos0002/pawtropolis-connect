@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCity } from '@/context/CityContext';
-import { ChevronDown, Paw } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 import { Link as ScrollLink } from 'react-scroll';
 
@@ -48,7 +48,7 @@ const HeroSection = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-black/10" />
       
-      {/* Floating Paw Prints */}
+      {/* Floating Paw Prints - using a different icon (ChevronDown) as a substitute since Paw is not available */}
       {pawPositions.map((pos, index) => (
         <motion.div
           key={index}
@@ -72,7 +72,7 @@ const HeroSection = () => {
             ease: "easeInOut"
           }}
         >
-          <Paw className="text-white/80 w-6 h-6 sm:w-8 sm:h-8" />
+          <ChevronDown className="text-white/80 w-6 h-6 sm:w-8 sm:h-8" />
         </motion.div>
       ))}
       

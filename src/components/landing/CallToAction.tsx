@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useCity } from '@/context/CityContext';
-import { Paw } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 import { toast } from '@/hooks/use-toast';
 
@@ -28,7 +28,7 @@ const CallToAction = () => {
     toast({
       title: "You're on the list!",
       description: `We'll notify you when PawConnect launches in ${cityName}.`,
-      variant: "success",
+      variant: "default",
     });
   };
   
@@ -82,7 +82,7 @@ const CallToAction = () => {
             </AnimatedButton>
             
             <p className="flex items-center justify-center gap-2 mt-4 text-white/80 text-sm">
-              <Paw className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4" />
               Limited spots available for beta testers
             </p>
           </motion.div>

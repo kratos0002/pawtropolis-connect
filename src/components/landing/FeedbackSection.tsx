@@ -1,405 +1,330 @@
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useCity } from '@/context/CityContext';
-import { toast } from '@/hooks/use-toast';
-import { CheckCircle2 } from 'lucide-react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { CheckCircle2, Send } from 'lucide-react';
 import AnimatedButton from '@/components/ui/AnimatedButton';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from '@/hooks/use-toast';
 
-// Define the form validation schema
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Please enter your full name" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  city: z.string().min(1, { message: "Please select your city" }),
-  otherCity: z.string().optional(),
-  petTypes: z.array(z.string()).min(1, { message: "Please select at least one pet type" }),
-  features: z.string().min(50, { message: "Please provide at least 50 characters of feedback" }),
-  usageType: z.string().min(1, { message: "Please select how you would use PawConnect" }),
-  otherUsage: z.string().optional(),
-  privacy: z.boolean().refine(val => val === true, { message: "You must agree to receive updates" })
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-const petOptions = [
-  { id: "dog", label: "Dog" },
-  { id: "cat", label: "Cat" },
-  { id: "bird", label: "Bird" },
-  { id: "fish", label: "Fish" },
-  { id: "reptile", label: "Reptile" },
-  { id: "small_mammal", label: "Small mammal" },
-  { id: "other", label: "Other" }
+const petTypes = [
+  "Dog",
+  "Cat",
+  "Bird",
+  "Rabbit",
+  "Hamster",
+  "Fish",
+  "Reptile",
+  "Other"
 ];
 
-const usageOptions = [
-  { id: "finding_services", label: "Finding pet services" },
-  { id: "meeting_owners", label: "Meeting other pet owners" },
-  { id: "discovering_locations", label: "Discovering pet-friendly locations" },
-  { id: "learning_regulations", label: "Learning about local pet regulations" },
-  { id: "other", label: "Other" }
+const useCases = [
+  "Finding local pet services",
+  "Connecting with other pet owners",
+  "Accessing pet-related information",
+  "Organizing pet playdates",
+  "Finding lost pets",
+  "Other"
 ];
 
 const FeedbackSection = () => {
   const { city } = useCity();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    city: '',
+    petType: [],
+    features: '',
+    useCase: '',
+    customUseCase: '',
+    privacy: false
+  });
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   
-  // Initialize the form
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      city: city || "",
-      otherCity: "",
-      petTypes: [],
-      features: "",
-      usageType: "",
-      otherUsage: "",
-      privacy: false
-    }
-  });
-  
-  // Handle form submission
-  const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
-    
-    // Simulate API call with timeout
-    setTimeout(() => {
-      console.log("Form submitted:", data);
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      
-      // Show success toast
-      toast({
-        title: "Thank you for your feedback!",
-        description: `We've added you to our waitlist and your feedback will help shape PawConnect in ${data.city === 'other' ? data.otherCity : data.city}.`,
-        variant: "success",
-      });
-      
-      // Reset form after 2 seconds
-      setTimeout(() => {
-        form.reset();
-        setIsSuccess(false);
-      }, 3000);
-    }, 1500);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  // Watch for form values that affect conditional fields
-  const selectedCity = form.watch("city");
-  const selectedUsage = form.watch("usageType");
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    if (name === 'privacy') {
+      setFormData(prev => ({ ...prev, privacy: checked }));
+    } else {
+      const value = name.replace('petType-', '');
+      setFormData(prev => {
+        let petType = [...prev.petType];
+        if (checked) {
+          petType.push(value);
+        } else {
+          petType = petType.filter(item => item !== value);
+        }
+        return { ...prev, petType };
+      });
+    }
+  };
+  
+  const handleUseCaseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    const value = name.replace('useCase-', '');
+    setFormData(prev => ({ ...prev, useCase: value }));
+  };
+
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  // In a real application, this would send data to a backend
+  console.log("Feedback submitted:", formData);
+  
+  // Show success message
+  toast({
+    title: "Thank you for your feedback!",
+    description: `We've added you to our waitlist and your feedback will help shape PawConnect in ${city || 'your city'}.`,
+    variant: "default",
+  });
+  
+  // Reset form
+  setFormData({
+    name: '',
+    email: '',
+    city: '',
+    petType: [],
+    features: '',
+    useCase: '',
+    customUseCase: '',
+    privacy: false
+  });
+  
+  // Show success animation
+  setIsSubmitted(true);
+  
+  // Hide animation after a delay
+  setTimeout(() => {
+    setIsSubmitted(false);
+  }, 5000);
+};
   
   return (
     <section 
       ref={ref}
-      className="py-20 relative bg-muted/20" 
+      className="py-16 bg-white"
       aria-label="Feedback section"
     >
-      {/* Background with gradient overlay */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-15"
-        style={{ 
-          backgroundImage: "url('/images/diverse-pets.jpg')",
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5" />
-      
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-        <div className="text-center mb-12">
-          <motion.h2 
-            className="text-3xl md:text-4xl font-heading font-bold mb-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+        <motion.div
+          className="mb-8 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-3xl font-heading font-bold text-gray-900 mb-4">
+            Help us shape PawConnect
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Your feedback will help us build the best pet community
+          </p>
+        </motion.div>
+        
+        {isSubmitted ? (
+          <motion.div
+            className="relative flex flex-col items-center justify-center"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.5 }}
           >
-            Shape PawConnect's Future
-          </motion.h2>
-          
-          <motion.p 
-            className="text-xl text-muted-foreground max-w-3xl mx-auto"
+            <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
+            <p className="text-green-600 font-semibold text-xl mb-2">
+              Thank you for your feedback!
+            </p>
+            <p className="text-gray-600 text-center">
+              We've added you to our waitlist and your feedback will help shape PawConnect in {city || 'your city'}.
+            </p>
+          </motion.div>
+        ) : (
+          <motion.form
+            className="grid grid-cols-1 gap-y-6"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.6, delay: 0.2 }}
+            onSubmit={handleSubmit}
           >
-            Your input directly influences what we build next
-          </motion.p>
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="w-full max-w-3xl mx-auto"
-        >
-          <Card className="border shadow-sm bg-card/95 backdrop-blur-sm">
-            <CardContent className="p-6 md:p-8">
-              {isSuccess ? (
-                <div className="py-10 flex flex-col items-center justify-center text-center">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                    className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6"
-                  >
-                    <CheckCircle2 className="w-10 h-10 text-green-600" />
-                  </motion.div>
-                  <h3 className="text-2xl font-semibold mb-2">Thank You!</h3>
-                  <p className="text-muted-foreground">
-                    We've added you to our waitlist and your feedback will help shape PawConnect.
-                  </p>
-                </div>
-              ) : (
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Name Field */}
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Email Field */}
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="your@email.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+            <div>
+              <Label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Name
+              </Label>
+              <div className="mt-1">
+                <Input
+                  type="text"
+                  name="name"
+                  id="name"
+                  autoComplete="given-name"
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </Label>
+              <div className="mt-1">
+                <Input
+                  type="email"
+                  name="email"
+                  id="email"
+                  autoComplete="email"
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                City
+              </Label>
+              <div className="mt-1">
+                <Input
+                  type="text"
+                  name="city"
+                  id="city"
+                  autoComplete="address-level2"
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  value={formData.city}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <p className="block text-sm font-medium text-gray-700">
+                What type of pets do you own?
+              </p>
+              <div className="mt-1 space-y-2">
+                {petTypes.map(type => (
+                  <div key={type} className="flex items-start">
+                    <div className="flex items-center h-5">
+                      <Checkbox
+                        id={`petType-${type}`}
+                        name={`petType-${type}`}
+                        checked={formData.petType.includes(type)}
+                        onChange={handleCheckboxChange}
+                        className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                       />
                     </div>
-
-                    {/* City Selection */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className={selectedCity === 'other' ? 'md:col-span-1' : 'md:col-span-2'}>
-                        <FormField
-                          control={form.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>City</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select your city" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="amsterdam">Amsterdam</SelectItem>
-                                  <SelectItem value="dublin">Dublin</SelectItem>
-                                  <SelectItem value="calgary">Calgary</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* Other City Field (conditional) */}
-                      {selectedCity === 'other' && (
-                        <FormField
-                          control={form.control}
-                          name="otherCity"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Specify City</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter your city" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
+                    <div className="ml-3 text-sm">
+                      <Label htmlFor={`petType-${type}`} className="font-medium text-gray-700">
+                        {type}
+                      </Label>
                     </div>
-
-                    {/* Pet Types */}
-                    <FormField
-                      control={form.control}
-                      name="petTypes"
-                      render={() => (
-                        <FormItem>
-                          <div className="mb-4">
-                            <FormLabel>Pet Type (select all that apply)</FormLabel>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                            {petOptions.map((option) => (
-                              <FormField
-                                key={option.id}
-                                control={form.control}
-                                name="petTypes"
-                                render={({ field }) => {
-                                  return (
-                                    <FormItem key={option.id} className="flex flex-row items-start space-x-3 space-y-0">
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={field.value?.includes(option.id)}
-                                          onCheckedChange={(checked) => {
-                                            return checked
-                                              ? field.onChange([...field.value, option.id])
-                                              : field.onChange(
-                                                  field.value?.filter(
-                                                    (value) => value !== option.id
-                                                  )
-                                                )
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <FormLabel className="font-normal cursor-pointer">
-                                        {option.label}
-                                      </FormLabel>
-                                    </FormItem>
-                                  )
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Feature Feedback */}
-                    <FormField
-                      control={form.control}
-                      name="features"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>What features would you love to see?</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Tell us what features would make PawConnect most useful for you and your pets..."
-                              className="min-h-[120px]"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Please provide at least 50 characters of feedback
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Usage Type */}
-                    <FormField
-                      control={form.control}
-                      name="usageType"
-                      render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel>How would you use PawConnect?</FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex flex-col space-y-1"
-                            >
-                              {usageOptions.map((option) => (
-                                <FormItem 
-                                  key={option.id} 
-                                  className="flex items-center space-x-3 space-y-0"
-                                >
-                                  <FormControl>
-                                    <RadioGroupItem value={option.id} />
-                                  </FormControl>
-                                  <FormLabel className="font-normal cursor-pointer">
-                                    {option.label}
-                                  </FormLabel>
-                                </FormItem>
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Other Usage Field (conditional) */}
-                    {selectedUsage === 'other' && (
-                      <FormField
-                        control={form.control}
-                        name="otherUsage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Please specify how you would use PawConnect</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Please describe..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="features" className="block text-sm font-medium text-gray-700">
+                What features would you like to see in PawConnect?
+              </Label>
+              <div className="mt-1">
+                <Textarea
+                  rows={4}
+                  name="features"
+                  id="features"
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  value={formData.features}
+                  onChange={handleChange}
+                />
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                Tell us what you're looking for in a pet community.
+              </p>
+            </div>
+            
+            <div>
+              <Label className="block text-sm font-medium text-gray-700">
+                How would you primarily use PawConnect?
+              </Label>
+              <div className="mt-1 space-y-2">
+                {useCases.map(useCase => (
+                  <div key={useCase} className="flex items-start">
+                    <div className="flex items-center h-5">
+                      <Input
+                        id={`useCase-${useCase}`}
+                        name={`useCase-${useCase}`}
+                        type="radio"
+                        value={useCase}
+                        checked={formData.useCase === useCase}
+                        onChange={handleUseCaseChange}
+                        className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                       />
-                    )}
-
-                    {/* Privacy Agreement */}
-                    <FormField
-                      control={form.control}
-                      name="privacy"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel className="font-normal cursor-pointer">
-                              I agree to receive updates about PawConnect
-                            </FormLabel>
-                            <FormDescription>
-                              We'll keep you informed about our launch and new features
-                            </FormDescription>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <AnimatedButton
-                      type="submit"
-                      className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3"
-                      disabled={isSubmitting}
-                      hoverEffect="lift"
-                    >
-                      {isSubmitting ? "Sending..." : "Send Feedback & Join Waitlist"}
-                    </AnimatedButton>
-                  </form>
-                </Form>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+                    </div>
+                    <div className="ml-3 text-sm">
+                      <Label htmlFor={`useCase-${useCase}`} className="font-medium text-gray-700">
+                        {useCase}
+                      </Label>
+                    </div>
+                  </div>
+                ))}
+                {formData.useCase === 'Other' && (
+                  <div className="mt-2">
+                    <Label htmlFor="customUseCase" className="block text-sm font-medium text-gray-700">
+                      Please specify:
+                    </Label>
+                    <div className="mt-1">
+                      <Input
+                        type="text"
+                        name="customUseCase"
+                        id="customUseCase"
+                        className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        value={formData.customUseCase}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <Checkbox
+                  id="privacy"
+                  name="privacy"
+                  checked={formData.privacy}
+                  onChange={handleCheckboxChange}
+                  required
+                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <Label htmlFor="privacy" className="font-medium text-gray-700">
+                  I agree to the <a href="#" className="text-indigo-600 hover:text-indigo-500">Privacy Policy</a> and <a href="#" className="text-indigo-600 hover:text-indigo-500">Terms of Service</a>.
+                </Label>
+              </div>
+            </div>
+            
+            <AnimatedButton
+              type="submit"
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              hoverEffect="lift"
+            >
+              Submit Feedback
+              <Send className="ml-2 w-5 h-5" />
+            </AnimatedButton>
+          </motion.form>
+        )}
       </div>
     </section>
   );

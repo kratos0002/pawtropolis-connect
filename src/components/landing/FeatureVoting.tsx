@@ -1,255 +1,231 @@
-
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { ChevronUp, Plus, FileText, BellRing, Map, PercentSquare, Users, Dumbbell, Home } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import AnimatedButton from '@/components/ui/AnimatedButton';
+import { useCity } from '@/context/CityContext';
+import { Lightbulb, Search, CheckCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
+// Define the structure of a feature
 interface Feature {
-  id: string;
-  title: string;
+  id: number;
+  name: string;
   description: string;
-  icon: React.ElementType;
+  icon: string;
   votes: number;
+  voted: boolean;
 }
 
 const FeatureVoting = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const { city } = useCity();
   const [features, setFeatures] = useState<Feature[]>([
     {
-      id: "health_records",
-      title: "Pet Health Records",
-      description: "Store vaccination records, medications, and health history all in one place.",
-      icon: FileText,
-      votes: 24
+      id: 1,
+      name: "Mobile App",
+      description: "Native iOS and Android apps for on-the-go access",
+      icon: "Mobile",
+      votes: 120,
+      voted: false
     },
     {
-      id: "lost_pet",
-      title: "Lost Pet Alert System",
-      description: "Quick community notifications when a pet goes missing in your area.",
-      icon: BellRing,
-      votes: 42
+      id: 2,
+      name: "Pet Profiles",
+      description: "Create detailed profiles for your pets with photos and info",
+      icon: "User",
+      votes: 95,
+      voted: false
     },
     {
-      id: "regulations",
-      title: "Local Pet Regulations Guide",
-      description: "Easy access to leash laws, pet-friendly areas, and local ordinances.",
-      icon: Map,
-      votes: 16
+      id: 3,
+      name: "Local Deals",
+      description: "Discover exclusive deals from local pet stores and services",
+      icon: "Percent",
+      votes: 78,
+      voted: false
     },
-    {
-      id: "discounts",
-      title: "Discounts at Local Pet Businesses",
-      description: "Exclusive offers and savings from partner businesses in your city.",
-      icon: PercentSquare,
-      votes: 37
-    },
-    {
-      id: "pet_sitting",
-      title: "Pet Sitting Exchange Network",
-      description: "Connect with trusted pet owners for pet sitting exchanges.",
-      icon: Users,
-      votes: 28
-    },
-    {
-      id: "breed_meetups",
-      title: "Breed-Specific Meetups",
-      description: "Find and organize gatherings with owners of the same breed as yours.",
-      icon: Dumbbell,
-      votes: 19
-    },
-    {
-      id: "training",
-      title: "Training Resources Library",
-      description: "Access to videos, articles, and local trainers recommended by the community.",
-      icon: FileText,
-      votes: 22
-    },
-    {
-      id: "housing",
-      title: "Pet-Friendly Housing Finder",
-      description: "Database of pet-friendly apartments, houses, and landlords in your area.",
-      icon: Home,
-      votes: 31
-    }
   ]);
-  
   const [newFeature, setNewFeature] = useState('');
-  
-  // Sort features by votes (descending)
-  const sortedFeatures = [...features].sort((a, b) => b.votes - a.votes);
-  
-  // Determine top 3 features
-  const topFeatureIds = sortedFeatures.slice(0, 3).map(f => f.id);
-  
-  // Handle upvoting a feature
-  const handleVote = (id: string) => {
-    setFeatures(prev => 
-      prev.map(feature => 
-        feature.id === id 
-          ? { ...feature, votes: feature.votes + 1 } 
-          : feature
-      )
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState('popular'); // 'popular' or 'newest'
+  const [isAddingFeature, setIsAddingFeature] = useState(false);
+  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+
+  const handleUpvote = (id: number) => {
+    const updatedFeatures = features.map(feature =>
+      feature.id === id ? { ...feature, votes: feature.votes + 1, voted: true } : feature
     );
+    setFeatures(updatedFeatures);
     
+    // Show toast notification
     toast({
-      title: "Vote recorded",
-      description: "Thank you for helping us prioritize!",
-      variant: "success",
-      duration: 2000
+      title: "Vote recorded!",
+      description: "Thanks for helping us prioritize our roadmap.",
+      variant: "default",
     });
   };
-  
-  // Handle suggesting a new feature
-  const handleSuggestFeature = () => {
-    if (newFeature.trim().length < 5) {
-      toast({
-        title: "Feature suggestion too short",
-        description: "Please provide a more detailed description",
-        variant: "destructive"
-      });
-      return;
-    }
+
+  const handleNewFeature = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    const newId = `suggested_${Date.now()}`;
+    if (newFeature.trim() === '') return;
     
-    setFeatures(prev => [
-      ...prev,
-      {
-        id: newId,
-        title: newFeature,
-        description: "User suggested feature",
-        icon: Plus,
-        votes: 1
-      }
-    ]);
+    // Add new feature to the list
+    const newFeatureObject = {
+      id: features.length + 1,
+      name: newFeature,
+      description: "User suggested feature",
+      icon: "Lightbulb",
+      votes: 1,
+      voted: true
+    };
     
+    setFeatures([...features, newFeatureObject]);
     setNewFeature('');
     
+    // Show toast notification
     toast({
       title: "Feature suggested!",
-      description: "Thank you for your contribution to PawConnect",
-      variant: "success"
+      description: "Thanks for your suggestion! Other users can now vote on it.",
+      variant: "default",
     });
   };
-  
+
+  const filteredFeatures = features.filter(feature =>
+    feature.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sortedFeatures = [...filteredFeatures].sort((a, b) => {
+    if (sortOrder === 'popular') {
+      return b.votes - a.votes;
+    } else {
+      return b.id - a.id;
+    }
+  });
+
+  const toggleAddingFeature = () => {
+    setIsAddingFeature(!isAddingFeature);
+  };
+
   return (
-    <section 
-      ref={ref}
-      className="py-20 bg-gradient-to-br from-background to-muted/30" 
-      aria-label="Feature voting section"
-    >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div className="text-center mb-12">
-          <motion.h2 
-            className="text-3xl md:text-4xl font-heading font-bold mb-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-          >
-            Help Us Prioritize
-          </motion.h2>
-          
-          <motion.p 
-            className="text-xl text-muted-foreground max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Vote for the features you want to see first
-          </motion.p>
-        </div>
-        
+    <section ref={ref} className="py-16 bg-white" aria-labelledby="feature-voting-title">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: 0.1
-              }
-            }
-          }}
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.6 }}
         >
-          {sortedFeatures.map((feature, index) => (
+          <h2 id="feature-voting-title" className="text-3xl font-heading font-bold text-gray-900 mb-4">
+            Vote on Future Features
+          </h2>
+          <p className="text-lg text-gray-600">
+            Help us decide what to build next. Vote on your favorite features or suggest new ones!
+          </p>
+        </motion.div>
+
+        <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+          <div className="flex items-center bg-gray-100 rounded-full px-3 py-1.5 flex-grow md:flex-grow-0">
+            <Search className="w-5 h-5 text-gray-500 mr-2" aria-hidden="true" />
+            <input
+              type="search"
+              className="bg-transparent border-none text-gray-900 placeholder-gray-500 focus:ring-0 focus:outline-none w-full"
+              placeholder="Search features..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Search features"
+            />
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setSortOrder('popular')}
+              className={`text-sm font-medium ${sortOrder === 'popular' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-500'} focus:outline-none transition-colors`}
+            >
+              Most Popular
+            </button>
+            <button
+              onClick={() => setSortOrder('newest')}
+              className={`text-sm font-medium ${sortOrder === 'newest' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-500'} focus:outline-none transition-colors`}
+            >
+              Newest
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedFeatures.map(feature => (
             <motion.div
               key={feature.id}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { duration: 0.5, ease: "easeOut" } 
-                }
-              }}
+              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.6, delay: features.indexOf(feature) * 0.1 }}
             >
-              <Card className={`h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-md overflow-hidden ${topFeatureIds.includes(feature.id) ? 'border-primary/50 bg-primary/5' : ''}`}>
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <feature.icon className="w-8 h-8 text-muted-foreground/70" />
-                    {topFeatureIds.includes(feature.id) && (
-                      <div className="bg-primary/20 text-primary text-xs px-2 py-1 rounded-full font-medium">
-                        Top Feature
-                      </div>
-                    )}
-                  </div>
-                  <CardTitle className="mt-2 text-lg line-clamp-1">{feature.title}</CardTitle>
-                </CardHeader>
-                
-                <CardContent className="pb-4">
-                  <p className="text-muted-foreground text-sm line-clamp-2">{feature.description}</p>
-                </CardContent>
-                
-                <CardFooter>
-                  <button 
-                    onClick={() => handleVote(feature.id)}
-                    className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2 border border-border rounded-md hover:bg-primary/5 transition-colors"
-                    aria-label={`Vote for ${feature.title}`}
-                  >
-                    <ChevronUp className="w-4 h-4" />
-                    <span>Upvote</span>
-                    <span className="ml-1 bg-muted rounded-full px-2">{feature.votes}</span>
-                  </button>
-                </CardFooter>
-              </Card>
+              <div className="p-5 flex-grow">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-yellow-500" aria-hidden="true" />
+                  {feature.name}
+                </h3>
+                <p className="text-gray-600 text-sm">{feature.description}</p>
+              </div>
+              <div className="bg-gray-50 px-5 py-4 flex items-center justify-between">
+                <span className="text-gray-700 text-sm">
+                  <span className="font-medium">{feature.votes}</span> Votes
+                </span>
+                <button
+                  onClick={() => handleUpvote(feature.id)}
+                  disabled={feature.voted}
+                  className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none transition-colors ${feature.voted ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  aria-label={`Vote for ${feature.name}`}
+                >
+                  {feature.voted ? (
+                    <CheckCircle className="w-5 h-5 inline-block mr-2" aria-hidden="true" />
+                  ) : null}
+                  Vote
+                </button>
+              </div>
             </motion.div>
           ))}
-        </motion.div>
-        
+        </div>
+
         <motion.div
-          className="mt-10 max-w-xl mx-auto"
+          className="mt-12 text-center"
           initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.6 }}
         >
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Suggest a New Feature</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-3">
-                <Input 
-                  placeholder="Describe a feature you'd like to see..." 
+          {isAddingFeature ? (
+            <form onSubmit={handleNewFeature} className="max-w-md mx-auto">
+              <div className="mb-4">
+                <input
+                  type="text"
+                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  placeholder="Suggest a new feature"
                   value={newFeature}
                   onChange={(e) => setNewFeature(e.target.value)}
-                  className="flex-1"
+                  aria-label="Suggest a new feature"
                 />
-                <AnimatedButton 
-                  onClick={handleSuggestFeature}
-                  className="bg-primary text-primary-foreground shrink-0"
-                  hoverEffect="scale"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Suggest
-                </AnimatedButton>
               </div>
-            </CardContent>
-          </Card>
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              >
+                Submit Feature
+              </button>
+              <button
+                type="button"
+                onClick={toggleAddingFeature}
+                className="ml-4 text-sm text-gray-600 hover:text-gray-800 focus:outline-none transition-colors"
+              >
+                Cancel
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={toggleAddingFeature}
+              className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              Suggest a Feature
+            </button>
+          )}
         </motion.div>
       </div>
     </section>
