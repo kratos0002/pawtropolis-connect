@@ -3,6 +3,33 @@ import React, { useState, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Slot } from '@radix-ui/react-slot';
+import { cva } from 'class-variance-authority';
+
+const buttonStyles = cva(
+  "relative overflow-hidden transition-all duration-300 ease-in-out-back will-change-transform",
+  {
+    variants: {
+      variant: {
+        default: "",
+        destructive: "",
+        outline: "",
+        secondary: "",
+        ghost: "",
+        link: "",
+      },
+      size: {
+        default: "",
+        sm: "",
+        lg: "",
+        icon: "",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
 
 interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -53,18 +80,37 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonProps>(({
     color: '#ffffff',
   } : {};
 
-  const Comp = asChild ? Slot : Button;
+  if (asChild) {
+    return (
+      <Slot
+        ref={ref as any}
+        className={cn(buttonStyles({ variant, size }), className)}
+        style={{
+          ...colorStyles,
+          ...getHoverEffectStyles(),
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setIsPressed(false);
+        }}
+        onMouseDown={() => setIsPressed(true)}
+        onMouseUp={() => setIsPressed(false)}
+        onClick={onClick}
+        {...props}
+      >
+        {children}
+      </Slot>
+    );
+  }
 
   return (
-    <Comp
+    <Button
       ref={ref}
-      variant={asChild ? undefined : variant}
-      size={asChild ? undefined : size}
+      variant={variant}
+      size={size}
       onClick={onClick}
-      className={cn(
-        'relative overflow-hidden transition-all duration-300 ease-in-out-back will-change-transform',
-        className
-      )}
+      className={cn(buttonStyles({ variant, size }), className)}
       style={{
         ...colorStyles,
         ...getHoverEffectStyles(),
@@ -81,7 +127,7 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonProps>(({
     >
       <span className="relative z-10">{children}</span>
       <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-10" />
-    </Comp>
+    </Button>
   );
 });
 

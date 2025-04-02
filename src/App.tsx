@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import Directory from "./pages/Directory";
 import InfoHub from "./pages/InfoHub";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
 
 // Setup Query Client
 const queryClient = new QueryClient();
@@ -24,7 +25,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/home" element={<Index />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/directory" element={<Directory />} />
             <Route path="/infohub" element={<InfoHub />} />
