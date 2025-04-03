@@ -46,7 +46,29 @@ const HeroSection = () => {
           filter: 'brightness(0.85)'
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-black/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30" />
+      
+      {/* Pet-themed decorative elements */}
+      <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+        <img 
+          src="/images/dog-silhouette.png" 
+          alt="" 
+          className="absolute top-[20%] right-[5%] w-32 h-32 opacity-20 transform rotate-12"
+          aria-hidden="true"
+        />
+        <img 
+          src="/images/cat-silhouette.png" 
+          alt="" 
+          className="absolute bottom-[15%] left-[8%] w-40 h-40 opacity-15 transform -rotate-6"
+          aria-hidden="true"
+        />
+        <img 
+          src="/images/bird-silhouette.png" 
+          alt="" 
+          className="absolute top-[30%] left-[15%] w-16 h-16 opacity-20 transform rotate-45"
+          aria-hidden="true"
+        />
+      </div>
       
       {/* Floating Paw Prints - using a different icon (ChevronDown) as a substitute since Paw is not available */}
       {pawPositions.map((pos, index) => (

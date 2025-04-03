@@ -10,7 +10,6 @@ import ValueProposition from '@/components/landing/ValueProposition';
 import Roadmap from '@/components/landing/Roadmap';
 import FeedbackSection from '@/components/landing/FeedbackSection';
 import FeatureVoting from '@/components/landing/FeatureVoting';
-import SocialProof from '@/components/landing/SocialProof';
 import CallToAction from '@/components/landing/CallToAction';
 
 const Landing = () => {
@@ -37,7 +36,6 @@ const Landing = () => {
         <Roadmap />
         <FeedbackSection />
         <FeatureVoting />
-        <SocialProof />
         <CallToAction />
       </main>
 
