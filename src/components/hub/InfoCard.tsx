@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useCity } from '@/context/CityContext';
 import { cn } from '@/lib/utils';
-import { CalendarDays, Bookmark, Share2 } from 'lucide-react';
+import { CalendarDays, Bookmark, Share2, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import CityBadge from '@/components/ui/CityBadge';
 import AnimatedButton from '@/components/ui/AnimatedButton';
@@ -19,6 +19,8 @@ interface InfoCardProps {
   tags: string[];
   icon: React.ElementType;
   onClick?: () => void;
+  trending?: boolean;
+  views?: number;
 }
 
 const InfoCard: React.FC<InfoCardProps> = ({
@@ -32,7 +34,9 @@ const InfoCard: React.FC<InfoCardProps> = ({
   date,
   tags,
   icon: Icon,
-  onClick
+  onClick,
+  trending = false,
+  views = 0
 }) => {
   const { cityColor } = useCity();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -78,7 +82,8 @@ const InfoCard: React.FC<InfoCardProps> = ({
     <div 
       className={cn(
         "rounded-xl overflow-hidden border shadow-sm bg-card transition-all duration-300",
-        "hover:shadow-md cursor-pointer h-full flex flex-col"
+        "hover:shadow-md cursor-pointer h-full flex flex-col",
+        trending && "ring-2 ring-amber-400/30"
       )}
       onClick={onClick}
     >
@@ -122,6 +127,16 @@ const InfoCard: React.FC<InfoCardProps> = ({
         <div className="absolute top-3 right-3">
           <CityBadge city={city as 'amsterdam' | 'dublin' | 'calgary'} size="sm" />
         </div>
+        
+        {/* Trending Badge */}
+        {trending && (
+          <div className="absolute bottom-3 right-3">
+            <div className="flex items-center px-2 py-1 bg-amber-400/90 text-white text-xs font-medium rounded-full shadow-sm">
+              <TrendingUp className="w-3 h-3 mr-1" />
+              Trending
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Article Info */}

@@ -1,4 +1,3 @@
-
 import { PawPrint, DogIcon, Cat, Bird, Fish, ShoppingBag, Stethoscope, Scissors, Home, Utensils, Car, Heart, GraduationCap } from 'lucide-react';
 
 // Mock user profiles
@@ -302,6 +301,15 @@ export const mockArticles = [
     tags: ['Housing', 'Rentals', 'Pet-Friendly']
   }
 ];
+
+// Add trending and views properties to mockArticles
+mockArticles.forEach((article, index) => {
+  // Randomly assign trending status to some articles
+  article.trending = index % 5 === 0;
+  
+  // Assign view counts - higher for trending articles
+  article.views = article.trending ? Math.floor(Math.random() * 500) + 500 : Math.floor(Math.random() * 300) + 50;
+});
 
 export const cityDescriptions = {
   amsterdam: {
