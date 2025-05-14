@@ -1,4 +1,21 @@
+
 import { PawPrint, DogIcon, Cat, Bird, Fish, ShoppingBag, Stethoscope, Scissors, Home, Utensils, Car, Heart, GraduationCap } from 'lucide-react';
+
+// Interface for articles
+interface Article {
+  id: number;
+  title: string;
+  city: string;
+  category: string;
+  icon: React.ElementType;
+  image: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  tags: string[];
+  trending?: boolean;
+  views?: number;
+}
 
 // Mock user profiles
 export const mockUsers = [
@@ -227,7 +244,7 @@ export const mockServiceProviders = [
 ];
 
 // Mock information hub articles
-export const mockArticles = [
+export const mockArticles: Article[] = [
   {
     id: 1,
     title: 'Amsterdam Pet Regulations Guide',
